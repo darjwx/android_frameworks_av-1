@@ -6033,6 +6033,7 @@ void ACodec::BaseState::onInputBufferFilled(const sp<AMessage> &msg) {
 
                 status_t err2 = OK;
                 switch (metaType) {
+                case kMetadataBufferTypeCameraSource:
                 case kMetadataBufferTypeInvalid:
 #ifdef CAMCORDER_GRALLOC_SOURCE
                 case kMetadataBufferTypeCameraSource:
