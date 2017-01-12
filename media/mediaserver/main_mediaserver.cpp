@@ -44,9 +44,7 @@ int main(int argc __unused, char **argv __unused)
     InitializeIcuOrDie();
     MediaPlayerService::instantiate();
     ResourceManagerService::instantiate();
-#ifdef NO_CAMERA_SERVER
     CameraService::instantiate();
-#endif
     registerExtensions();
     ProcessState::self()->startThreadPool();
     IPCThreadState::self()->joinThreadPool();
