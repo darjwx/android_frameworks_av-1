@@ -800,7 +800,7 @@ status_t OMXNodeInstance::useBuffer(
                 params, portIndex, false /* copyToOmx */, false /* copyFromOmx */, data);
     } else {
         buffer_meta = new BufferMeta(
-                params, portIndex, false /* copyToOmx */, false /* copyFromOmx */, NULL);
+                params, portIndex, false /* copyFromOmx */, false /* copyToOmx */, NULL);
     }
 
     OMX_BUFFERHEADERTYPE *header;
@@ -1028,7 +1028,7 @@ status_t OMXNodeInstance::updateNativeHandleInMeta(
     }
 
     BufferMeta *bufferMeta = (BufferMeta *)(header->pAppPrivate);
-    // update backup buffer
+    // update backup buffer for input, codec buffer for output
     sp<ABuffer> data = bufferMeta->getBuffer(
             header, false /* backup */, false /* limit */);
     bufferMeta->setNativeHandle(nativeHandle);
@@ -1389,12 +1389,6 @@ status_t OMXNodeInstance::emptyBuffer(
     BufferMeta *buffer_meta =
         static_cast<BufferMeta *>(header->pAppPrivate);
 
-#ifndef CAMCORDER_GRALLOC_SOURCE
-    // set up proper filled length if component is configured for gralloc metadata mode
-    // ignore rangeOffset in this case (as client may be assuming ANW meta buffers).
-    if (mMetadataType[kPortIndexInput] == kMetadataBufferTypeGrallocSource) {
-        header->nFilledLen = rangeLength ? sizeof(VideoGrallocMetadata) : 0;
-#else
     sp<ABuffer> backup = buffer_meta->getBuffer(header, true /* backup */, false /* limit */);
     sp<ABuffer> codec = buffer_meta->getBuffer(header, false /* backup */, false /* limit */);
 
@@ -1412,7 +1406,7 @@ status_t OMXNodeInstance::emptyBuffer(
         codecMeta.pHandle = backupMeta.pBuffer != NULL ? backupMeta.pBuffer->handle : NULL;
         codecMeta.eType = kMetadataBufferTypeGrallocSource;
         header->nFilledLen = rangeLength ? sizeof(codecMeta) : 0;
-#endif
+ emptyBuffer
         header->nOffset = 0;
     } else {
         // rangeLength and rangeOffset must be a subset of the allocated data in the buffer.
